@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TableGo — система электронного меню для ресторанов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <div class="container header__inner">
+    <a href="#" class="logo" data-view="menu">
+      <span class="logo__mark">🍽</span>
+      <span class="logo__text">Table<strong>Go</strong></span>
+    </a>
+
+    <nav class="nav">
+      <button class="nav__btn is-active" data-view="menu" data-i18n="nav.menu">Меню</button>
+      <button class="nav__btn" data-view="cart" data-i18n="nav.cart">Заказ <span class="badge" id="cartBadge">0</span></button>
+      <button class="nav__btn" data-view="kitchen" data-i18n="nav.kitchen">Кухня <span class="badge badge--green" id="kitchenBadge">0</span></button>
+      <button class="nav__btn" data-view="reports" data-i18n="nav.reports">Отчёты</button>
+      <button class="nav__btn" data-view="admin" data-i18n="nav.admin">Админка</button>
+    </nav>
+
+    <div class="header__right">
+      <select class="lang-select" id="langSelect" aria-label="Language">
+        <option value="ru">RU</option>
+        <option value="en">EN</option>
+        <option value="uz">UZ</option>
+      </select>
+      <button class="btn btn--ghost btn--sm" id="newClientBtn" data-i18n="header.newClient">🆕 Новый чек</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ============ HERO + MENU ============ -->
+  <section class="view is-active" id="view-menu">
+
+    <div class="hero" id="hero">
+      <div class="hero__content">
+        <span class="hero__tag" data-i18n="hero.tag">Электронное меню · планшет за столом</span>
+        <h1 class="hero__title" data-i18n="hero.title">Заказывайте прямо<br><span>со своего стола</span></h1>
+        <p class="hero__text" data-i18n="hero.text">
+          Откройте меню на планшете, выберите любимые блюда и отправьте заказ на кухню
+          одним касанием. Официант не нужен — заказ придёт шеф-повару мгновенно.
+        </p>
+        <div class="hero__actions">
+          <button class="btn btn--primary" data-scroll="menuAnchor" data-i18n="hero.cta1">Выбрать блюда</button>
+          <button class="btn btn--ghost" data-view="cart" data-i18n="hero.cta2">Мой заказ</button>
+        </div>
+        <ul class="hero__stats">
+          <li><b id="heroStatDishes">0</b><span data-i18n="hero.stat1">блюд в меню</span></li>
+          <li><b>~30 сек</b><span data-i18n="hero.stat2">на оформление</span></li>
+          <li><b>0 мин</b><span data-i18n="hero.stat3">ожидания официанта</span></li>
+        </ul>
+      </div>
+      <div class="hero__media" id="heroMedia">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80"
+             alt="Ресторан" loading="lazy">
+      </div>
+    </div>
+
+    <div class="section-head" id="menuAnchor">
+      <h2 data-i18n="menu.title">Меню ресторана</h2>
+      <p data-i18n="menu.subtitle">Выберите блюда — они сразу попадут в ваш заказ</p>
+    </div>
+
+    <div class="chips" id="categoryChips"></div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </section>
+
+  <!-- ============ CART ============ -->
+  <section class="view" id="view-cart">
+    <div class="section-head">
+      <h2 data-i18n="cart.title">Ваш заказ</h2>
+      <p data-i18n="cart.subtitle">Проверьте состав и отправьте заказ на кухню</p>
+    </div>
+
+    <div class="cart-layout">
+      <div class="cart-items" id="cartItems"></div>
+
+      <aside class="cart-summary">
+        <label class="field">
+          <span data-i18n="cart.table">Номер стола</span>
+          <select id="tableSelect"></select>
+        </label>
+
+        <label class="field">
+          <span data-i18n="cart.comment">Комментарий к заказу</span>
+          <textarea id="commentInput" rows="2" placeholder="Без лука, острее..." data-i18n-ph="cart.commentPh"></textarea>
+        </label>
+
+        <div class="summary-row"><span data-i18n="cart.positions">Позиций</span><b id="sumPositions">0</b></div>
+        <div class="summary-row"><span data-i18n="cart.count">Блюд всего</span><b id="sumCount">0</b></div>
+        <div class="summary-row summary-row--total"><span data-i18n="cart.total">Итого</span><b id="sumTotal">0 ₽</b></div>
+
+        <button class="btn btn--primary btn--block" id="submitOrder" data-i18n="cart.submit">Отправить заказ на кухню</button>
+        <button class="btn btn--ghost btn--block" id="clearCart" data-i18n="cart.clear">Очистить заказ</button>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ KITCHEN ============ -->
+  <section class="view" id="view-kitchen">
+    <div class="section-head">
+      <h2 data-i18n="kitchen.title">Экран кухни / администратора</h2>
+      <p data-i18n="kitchen.subtitle">Новые заказы появляются здесь автоматически</p>
+    </div>
+    <div class="orders" id="kitchenList"></div>
+  </section>
+
+  <!-- ============ REPORTS ============ -->
+  <section class="view" id="view-reports">
+    <div class="section-head">
+      <h2 data-i18n="reports.title">Отчёт по продажам</h2>
+      <p data-i18n="reports.subtitle">История заказов и аналитика в реальном времени</p>
+    </div>
+
+    <div class="stats" id="reportStats"></div>
+
+    <div class="report-grid">
+      <div class="panel">
+        <h3 data-i18n="reports.top">Топ блюд</h3>
+        <div id="topDishes" class="top-dishes"></div>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="reports.history">История заказов</h3>
+        <div id="historyList" class="history"></div>
+      </div>
+    </div>
+
+    <div class="report-actions">
+      <button class="btn btn--ghost" id="seedDemo" data-i18n="reports.seed">Добавить демо-данные</button>
+      <button class="btn btn--danger" id="clearHistory" data-i18n="reports.clear">Очистить историю</button>
+    </div>
+  </section>
+
+  <!-- ============ ADMIN (CRUD меню + стоп-лист) ============ -->
+  <section class="view" id="view-admin">
+    <div class="section-head">
+      <h2 data-i18n="admin.title">Админка — управление меню</h2>
+      <p data-i18n="admin.subtitle">Добавляйте, редактируйте, удаляйте блюда и ставьте стоп-лист</p>
+    </div>
+
+    <div class="admin-grid">
+      <div class="panel">
+        <h3 data-i18n="admin.formAdd">Добавить / изменить блюдо</h3>
+        <form id="dishForm" class="form">
+          <input type="hidden" id="dishId">
+          <label class="field"><span data-i18n="admin.name">Название</span>
+            <input type="text" id="dishName" required></label>
+          <label class="field"><span data-i18n="admin.category">Категория</span>
+            <input type="text" id="dishCategory" required placeholder="Салаты"></label>
+          <label class="field"><span data-i18n="admin.price">Цена (₽)</span>
+            <input type="number" id="dishPrice" min="1" required></label>
+          <label class="field"><span data-i18n="admin.desc">Описание</span>
+            <textarea id="dishDesc" rows="2"></textarea></label>
+          <label class="field"><span data-i18n="admin.img">URL фото</span>
+            <input type="url" id="dishImg" placeholder="https://..."></label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary" data-i18n="admin.save">Сохранить</button>
+            <button type="button" class="btn btn--ghost" id="dishReset" data-i18n="admin.reset">Сбросить</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h3 data-i18n="admin.list">Блюда в меню</h3>
+        <div id="adminDishList" class="admin-list"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <span>© 2025 TableGo — учебный прототип</span>
+    <span data-i18n="footer.local">Данные хранятся локально (localStorage)</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ RECEIPT MODAL ============ -->
+<div class="modal" id="receiptModal" aria-hidden="true">
+  <div class="modal__box">
+    <div class="modal__head">
+      <h3 data-i18n="receipt.title">Чек</h3>
+      <button class="modal__close" id="receiptClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="receipt" id="receiptBody"></div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" id="receiptPrint" data-i18n="receipt.print">🖨 Печать</button>
+      <button class="btn btn--primary" id="receiptPay" data-i18n="receipt.pay">Оплачено</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
